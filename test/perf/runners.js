@@ -10,6 +10,8 @@ exports.runKefir       = runKefir;
 exports.kefirFromArray = kefirFromArray;
 exports.runBacon       = runBacon;
 exports.runHighland    = runHighland;
+exports.runLodash      = runLodash;
+exports.runArray       = runArray;
 
 exports.getIntArg      = getIntArg;
 exports.getIntArg2     = getIntArg2;
@@ -66,6 +68,24 @@ function runSuite(suite) {
 
 function runMost(deferred, mostPromise) {
 	mostPromise.then(function() {
+		deferred.resolve();
+	}, function(e) {
+		deferred.benchmark.emit({ type: 'error', error: e });
+		deferred.resolve(e);
+	});
+}
+
+function runLodash(deferred, cb) {
+	cb(function() {
+		deferred.resolve();
+	}, function(e) {
+		deferred.benchmark.emit({ type: 'error', error: e });
+		deferred.resolve(e);
+	});
+}
+
+function runArray(deferred, cb) {
+	cb(function() {
 		deferred.resolve();
 	}, function(e) {
 		deferred.benchmark.emit({ type: 'error', error: e });
