@@ -12,57 +12,88 @@ var kefirFromArray = runners.kefirFromArray;
 
 // Create a stream from an Array of n integers
 // filter out odds, map remaining evens by adding 1, then reduce by summing
-var n = runners.getIntArg(1000000);
+var n = runners.getIntArg(10000);
 var a = new Array(n);
-for(var i = 0; i< a.length; ++i) {
-	a[i] = i;
+for (var i = 0; i < a.length; ++i) {
+    a[i] = i;
 }
 
 var suite = Benchmark.Suite('filter -> map -> reduce ' + n + ' integers');
 var options = {
-	defer: true,
-	onError: function(e) {
-		e.currentTarget.failure = e.error;
-	}
+    defer: true,
+    onError: function(e) {
+        e.currentTarget.failure = e.error;
+    }
 };
 
 suite
-	.add('most', function(deferred) {
-		runners.runMost(deferred, most.from(a).filter(even).map(add1).reduce(sum, 0));
-	}, options)
-	.add('rx 4', function(deferred) {
-		runners.runRx(deferred, rx.Observable.fromArray(a).filter(even).map(add1).reduce(sum, 0));
-	}, options)
-	.add('rx 5', function(deferred) {
-		runners.runRx5(deferred,
-			rxjs.Observable.from(a).filter(even).map(add1).reduce(sum, 0));
-	}, options)
-	.add('kefir', function(deferred) {
-		runners.runKefir(deferred, kefirFromArray(a).filter(even).map(add1).scan(sum, 0).last());
-	}, options)
-	.add('bacon', function(deferred) {
-		runners.runBacon(deferred, bacon.fromArray(a).filter(even).map(add1).reduce(0, sum));
-	}, options)
-	.add('highland', function(deferred) {
-		runners.runHighland(deferred, highland(a).filter(even).map(add1).reduce(0, sum));
-	}, options)
-	.add('lodash', function(deferred) {		
- 		runners.runLodash(deferred, function() { return lodash(a).filter(even).map(add1).reduce(sum, 0) });		
- 	})		
- 	.add('array', function(deferred) {		
- 		runners.runArray(deferred, function() { return a.filter(even).map(add1).reduce(sum, 0) });		
- 	});
+	 .add('array2', function(deferred) {
+        runners.runArray(deferred, runArray2);
+    }, options)
+    .add('most', function(deferred) {
+        runners.runMost(deferred, most.from(a).filter(even).map(add1).reduce(sum, 0));
+    }, options)
+    //.add('rx 4', function(deferred) {
+    //    runners.runRx(deferred, rx.Observable.fromArray(a).filter(even).map(add1).reduce(sum, 0));
+    //}, options)
+    .add('rx 5', function(deferred) {
+        runners.runRx5(deferred,
+            rxjs.Observable.from(a).filter(even).map(add1).reduce(sum, 0));
+    }, options)
+    //.add('kefir', function(deferred) {
+    //    runners.runKefir(deferred, kefirFromArray(a).filter(even).map(add1).scan(sum, 0).last());
+    //}, options)
+    //.add('bacon', function(deferred) {
+    //    runners.runBacon(deferred, bacon.fromArray(a).filter(even).map(add1).reduce(0, sum));
+    //}, options)
+    //.add('highland', function(deferred) {
+    //    runners.runHighland(deferred, highland(a).filter(even).map(add1).reduce(0, sum));
+    //}, options)
+    .add('lodash', function(deferred) {
+        runners.runLodash(deferred, runLodash);
+    }, options)
+    .add('array', function(deferred) {
+        runners.runArray(deferred, runArray);
+    }, options);
 
 runners.runSuite(suite);
 
 function add1(x) {
-	return x + 1;
+    return x + 1;
 }
 
 function even(x) {
-	return x % 2 === 0;
+    return x % 2 === 0;
 }
 
 function sum(x, y) {
-	return x + y;
+    return x + y;
+}
+
+function runLodash(cb) {
+    return lodash.chain(a).filter(even).map(add1).reduce(sum, 0).value();
+}
+
+function runArray(cb) {
+    return a.filter(even).map(add1).reduce(sum, 0);
+}
+
+function runArray2() {
+	let x1 = [];
+	for(var i=0, n=a.length; i < n; i++) {
+		if(even(a[i])) x1.push(a[i]);
+	}
+
+	let x2 = [];
+	for(var i=0, n=a.length; i < n; i++) {
+		x1[i] = add1(x1[i]);
+	}
+
+
+	let reduce = 0;
+	for(var i=0, n=a.length; i < n; i++) {
+		reduce = sum(reduce, x2[i])
+	}
+
+	return reduce;
 }

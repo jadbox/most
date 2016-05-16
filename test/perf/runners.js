@@ -75,22 +75,24 @@ function runMost(deferred, mostPromise) {
 	});
 }
 
-function runLodash(deferred, cb) {
-	cb(function() {
-		deferred.resolve();
-	}, function(e) {
-		deferred.benchmark.emit({ type: 'error', error: e });
-		deferred.resolve(e);
-	});
+function runLodash(deferred, exec) {
+	const v = exec()//a, function(v) {
+	//console.log('v',v)
+	deferred.resolve();
+	
+	//}, function(e) {
+	//	deferred.benchmark.emit({ type: 'error', error: e });
+	//	deferred.resolve(e);
+	//});
 }
 
-function runArray(deferred, cb) {
-	cb(function() {
-		deferred.resolve();
-	}, function(e) {
-		deferred.benchmark.emit({ type: 'error', error: e });
-		deferred.resolve(e);
-	});
+function runArray(deferred, exec) {
+	const v = exec();//a, function(v) {
+	deferred.resolve();
+	//}, function(e) {
+	///	deferred.benchmark.emit({ type: 'error', error: e });
+	//	deferred.resolve(e);
+	//});
 }
 
 function runRx(deferred, rxStream) {
@@ -107,16 +109,14 @@ function runRx(deferred, rxStream) {
 }
 
 function runRx5(deferred, rxStream) {
-	rxStream.subscribe({
-		next: noop,
-		complete: function() {
+	rxStream.toArray().subscribe(function() {
 			deferred.resolve();
 		},
-		error: function(e) {
+		function(e) {
 			deferred.benchmark.emit({ type: 'error', error: e });
 			deferred.resolve(e);
 		}
-	});
+	);
 }
 
 function runKefir(deferred, kefirStream) {
