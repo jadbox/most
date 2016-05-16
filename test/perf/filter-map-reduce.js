@@ -81,17 +81,17 @@ function runArray(cb) {
 function runArray2() {
 	let x1 = [];
 	for(var i=0, n=a.length; i < n; i++) {
-		if(even(a[i])) x1.push(a[i]);
+		if(even(a[i])===true) x1.push(a[i]);
 	}
 
-	let x2 = [];
-	for(var i=0, n=a.length; i < n; i++) {
-		x1[i] = add1(x1[i]);
+	let x2 = []; //new Array(x1.length);
+	for(var i=0, n=x1.length; i < n; i++) {
+		x2[i] = add1(x1[i]);
 	}
 
 
 	let reduce = 0;
-	for(var i=0, n=a.length; i < n; i++) {
+	for(var i=0, n=x1.length; i < n; i++) {
 		reduce = sum(reduce, x2[i])
 	}
 
